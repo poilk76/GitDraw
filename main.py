@@ -1,4 +1,4 @@
-
+#python 
 
 from dotenv import load_dotenv
 from sys import argv

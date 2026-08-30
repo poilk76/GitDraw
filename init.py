@@ -1,44 +1,85 @@
 import os
 import winreg
 from pathlib import Path
-from subprocess import check_output
+from subprocess import check_output, run
+from json import dump
+import venv
 
-def main() -> None:
+CURRENT_PATH = Path(os.path.abspath(__file__)).parent
+try:
+    ORIGINAL_GIT_PATH = check_output(["where","git"])\
+                                    .decode()\
+                                    .strip()\
+                                    .split('\n')[-1]
+except: 
+    ORIGINAL_GIT_PATH = "C:\\Program Files\\Git\\cmd\\git.exe"
+KEY_PATH = r"Environment"
+VENV_PATH = CURRENT_PATH / ".venv"
+PYTHON_PATH = CURRENT_PATH / ".venv/Scripts/python.exe"
+PROGRAM_PATH = CURRENT_PATH / "main.py"
 
-    current_path = Path(os.path.abspath(__file__)).parent
-    git_path = check_output(["where","git"])
+def create_venv() -> None:
 
-    print(str(git_path.decode()))
+    if not VENV_PATH.exists():
+        print("Creating virtual enviroment...")
 
-    with open('.env','w+') as f:
+        venv.create(
+            VENV_PATH,
+            with_pip=True
+        )
 
-        f.write(f'REGULAR_GIT_PATH="{git_path.decode().strip().split("\n")[-1]}"')
+        run(
+            [
+                PYTHON_PATH,
+                "-m",
+                "pip",
+                "install",
+                "-r",
+                "./requirements.txt"
+            ]
+        )
 
-    key_path = r"Environment"
 
-    with open(f'{current_path}\\git.cmd','w+') as f:
 
-        f.write(f"""
+def create_settings() -> None:
+
+    print("Creating settings")
+
+    with open('./settings.json','w+',encoding="UTF-8") as f:
+
+        dump({"ORIGINAL_GIT_PATH":ORIGINAL_GIT_PATH},f)
+
+def create_starting_file() -> None:
+
+    print("Creating cmd starting file")
+
+    with open(f'{CURRENT_PATH}/git.cmd','w+') as f:
+
+         f.write(f"""
 @echo off
-python {current_path}\\main.py %*
+{PYTHON_PATH} {PROGRAM_PATH} %*
 """)
+
+def add_program_path() -> None:
+
+    print("Adding to PATHS")
 
     with winreg.OpenKey(
         winreg.HKEY_CURRENT_USER,
-        key_path,
+        KEY_PATH,
         0,
         winreg.KEY_READ | winreg.KEY_WRITE
     ) as key:
 
         try:
             path,_ = winreg.QueryValueEx(key,"Path")
-        except FileNotFoundError:
+        except:
             path = ""
 
         paths = path.split(";") if path else []
 
-        if current_path not in paths:
-            paths.insert(0,str(current_path))
+        if CURRENT_PATH not in paths:
+            paths.insert(0,str(CURRENT_PATH))
 
             winreg.SetValueEx(
                 key,
@@ -47,7 +88,13 @@ python {current_path}\\main.py %*
                 winreg.REG_EXPAND_SZ,
                 ";".join(paths)
             )
-        
+
+def main() -> None:
+
+    create_venv()
+    create_starting_file()
+    add_program_path()
+    create_settings()
 
     print("All done!")
 
