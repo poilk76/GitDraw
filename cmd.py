@@ -50,7 +50,7 @@ def main() -> None:
             branch=get_arg("--branch"),
             commit=get_arg("--commit") or "HEAD",
             remote=get_arg("--remote") or "origin",
-            priority=get_arg("--priority") or "normal",
+            priority=get_arg("--priority") or None,
         )
 
     else:
