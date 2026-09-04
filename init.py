@@ -81,17 +81,6 @@ def add_program_path() -> None:
                 ";".join(paths)
             )
 
-def add_que_server_to_autostart() -> None:
-
-    print("Adding queue server to Windows autostart")
-
-    with open(STARTUP_PATH / "GitDraw.cmd","w+") as f:
-
-        f.write(f"""
-@echo off
-{PYTHON_PATH} {SERVER_PATH}
-""")
-
 def create_settings() -> None:
 
     with open('./settings.json','w+',encoding='UTF-8') as f:
@@ -104,7 +93,6 @@ def main() -> None:
     create_starting_file()
     add_program_path()
     create_settings()
-    add_que_server_to_autostart()
 
     open('./que.txt','w+').close()
 
