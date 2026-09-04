@@ -41,17 +41,6 @@ def create_venv() -> None:
             ]
         )
 
-def create_settings() -> None:
-
-    print("Creating settings")
-
-    with open('./settings.json','w+',encoding="UTF-8") as f:
-
-        dump({
-            "ORIGINAL_GIT_PATH":ORIGINAL_GIT_PATH,
-            "QUE_SERVER":"127.0.0.1:8321"
-            },f)
-
 def create_starting_file() -> None:
 
     print("Creating cmd starting file")
@@ -60,7 +49,7 @@ def create_starting_file() -> None:
 
          f.write(f"""
 @echo off
-{PYTHON_PATH} {PROGRAM_PATH} %*
+{PYTHON_PATH} {PROGRAM_PATH} \"{CURRENT_PATH}\\settings.json\" "%cd%" %*
 """)
 
 def add_program_path() -> None:
@@ -96,12 +85,18 @@ def add_que_server_to_autostart() -> None:
 
     print("Adding queue server to Windows autostart")
 
-    with open(STARTUP_PATH / "GitDraftsman.cmd","w+") as f:
+    with open(STARTUP_PATH / "GitDraw.cmd","w+") as f:
 
         f.write(f"""
 @echo off
 {PYTHON_PATH} {SERVER_PATH}
 """)
+
+def create_settings() -> None:
+
+    with open('./settings.json','w+',encoding='UTF-8') as f:
+
+        dump({"ORIGINAL_PATH":ORIGINAL_GIT_PATH,"PROGRAM_PATH":str(CURRENT_PATH)},f)
 
 def main() -> None:
 
@@ -110,6 +105,8 @@ def main() -> None:
     add_program_path()
     create_settings()
     add_que_server_to_autostart()
+
+    open('./que.txt','w+').close()
 
     print("All done!")
 

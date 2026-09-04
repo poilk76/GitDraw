@@ -1,39 +1,26 @@
 from sys import argv
 from subprocess import run
 from json import load
-from requests import post
+import os
 
-with open('settings.json','r') as f:
+SETTINGS_PATH = argv[1]
+with open(SETTINGS_PATH,'r',encoding='UTF-8') as f:
     settings = load(f)
-
-ORIGINAL_GIT_PATH = settings["ORIGINAL_GIT_PATH"]
+os.chdir(argv[2])
 HANDLED_COMMANDS = [
-    "commit",
     "push"
 ]
 
 def main() -> None:
 
-    if argv[1] in HANDLED_COMMANDS:
+    if argv[3] in HANDLED_COMMANDS:
 
-        post("http://"+settings["QUE_SERVER"]+"/add",json={"command":[ORIGINAL_GIT_PATH]+argv[1:],"priority":0})
-
-    elif argv[1] == 'first':
-
-        post("http://"+settings["QUE_SERVER"]+"/add",json={"command":[ORIGINAL_GIT_PATH]+argv[2:],"priority":1})
-        
-    elif argv[1] == 'force':
-
-        print(run(
-                    [ORIGINAL_GIT_PATH]+argv[2:],
-                    check=True
-                ))
+        print(argv[3:])
         
     else:
 
         print(run(
-            [ORIGINAL_GIT_PATH]+argv[1:],
-            check=True
+            [settings["ORIGINAL_PATH"]]+argv[3:]
         ))
 
 
