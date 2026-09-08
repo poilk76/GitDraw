@@ -95,6 +95,7 @@ def main() -> None:
     create_settings()
 
     open('./que.txt','w+').close()
+    open('./times.txt','w+').close()
 
     print("All done!")
 
